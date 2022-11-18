@@ -81,13 +81,13 @@ class Reversi:
         for line in self.board_state:
             for square in line:
                 if square == _SpaceType.X:
-                    ret += "X"
+                    ret += "x"
                 elif square == _SpaceType.O:
-                    ret += "O"
+                    ret += "o"
                 elif square == _SpaceType.EMPTY:
                     ret += "."
                 elif square == _SpaceType.VOID:
-                    ret += " "
+                    ret += "_"
             ret += "\n"
         return ret
 
