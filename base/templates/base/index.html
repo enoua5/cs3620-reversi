@@ -17,9 +17,13 @@
     </div>
     <div class="float-end">
         <h2>Top Players</h2>
-        <ul>
-            <li>me lol</li>
-        </ul>
+        <ol>
+            {% for player in top_players %}
+            <li>
+                {{ player.username }} — {{ player.userdata.elo_rating }}
+            </li>
+            {% endfor %}
+        </ol>
     </div>
 </div>
 
