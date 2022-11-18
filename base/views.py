@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 @login_required
 def index(req):
-    top_players = User.objects.all().order_by('userdata__elo_rating')[:5]
+    top_players = User.objects.all().order_by('-userdata__elo_rating')[:5]
 
     ctx = {
         'top_players': top_players
