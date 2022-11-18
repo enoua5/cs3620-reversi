@@ -1,0 +1,38 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Signup{% endblock %}
+
+{% block body %}
+
+<form method="POST" class="d-grid align-items-center justify-content-center">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ error }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% for field in form %}
+    <div class="form-group mb-2">
+        <b>
+            {{ field.label }}
+        </b>
+        {% if field.errors %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        <br>
+        {{ field }}
+    </div>
+    {% endfor %}
+    <button class="btn btn-primary" type="submit">Register</button>
+    <a class="btn btn-secondary" href="{% url 'users:login' %}">Cancel</a>
+</form>
+
+{% endblock %}
