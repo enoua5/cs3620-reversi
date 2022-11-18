@@ -10,6 +10,7 @@ def signup(req):
     if req.method == 'POST':
         form = RegistrationForm(req.POST)
         if form.is_valid():
+            print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
             form.save()
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password1')
