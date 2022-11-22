@@ -16,6 +16,7 @@ class Game(models.Model):
     first_player_is_X = models.BooleanField(default=True)
     first_players_turn = models.BooleanField(default=True)
 
+    board_name = models.CharField(max_length=50)
     board_string = models.CharField(max_length=1056)
 
     open_game = models.BooleanField(default=False)

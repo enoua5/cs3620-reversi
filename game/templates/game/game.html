@@ -1,0 +1,144 @@
+{% extends 'base/base.html' %}
+
+{% block title %} Play {% endblock %}
+
+{% block head %}
+    <style>
+        #board
+        {
+            float: left;
+        }
+        #info
+        {
+            float: right;
+            border-left: 1px solid black;
+            padding: 1em;
+        }
+        .board-square
+        {
+            display: inline-block;
+            width: 5em;
+            height: 5em;
+        }
+        .board-square-white
+        {
+            background-color: bisque;
+        }
+        .board-square-black
+        {
+            background-color: tomato;
+        }
+        :root
+        {
+            --stone-size: 75%;
+        }
+        .stone
+        {
+            border-radius: 100%;
+            width: var(--stone-size);
+            height: var(--stone-size);
+            margin: calc((100% - var(--stone-size))/2);
+            border: 0.25em solid #333;
+        }
+        .black-stone
+        {
+            background-color: darkslategrey;
+        }
+        .white-stone
+        {
+            background-color: white;
+        }
+        .board-void
+        {
+            opacity: 0;
+        }
+    </style>
+
+    <script>
+        const board_string = "{{ game.board_string }}";
+
+        registerLoadFunction(()=>{
+            let line_checker_start = true;
+            let checker_color = line_checker_start;
+            let board = document.getElementById("board");
+
+            let row = document.createElement("tr")
+
+            for(let c of board_string)
+            {
+                console.log(c)
+
+                let div = document.createElement("td");
+                div.classList.add("board-square");
+
+                let new_line = false;
+
+                if(c == '_')
+                {
+                    div.classList.add('board-void');
+                }
+                else if(c == '.')
+                {
+                    if(checker_color)
+                        div.classList.add('board-square-white');
+                    else
+                        div.classList.add('board-square-black');
+                }
+                else if(c == 'x')
+                {
+                    if(checker_color)
+                        div.classList.add('board-square-white');
+                    else
+                        div.classList.add('board-square-black');
+
+                    let stone = document.createElement("div");
+                    stone.classList.add("stone", "white-stone");
+                    div.appendChild(stone);
+
+                }
+                else if(c == 'o')
+                {
+                    if(checker_color)
+                        div.classList.add('board-square-white');
+                    else
+                        div.classList.add('board-square-black');
+
+                    let stone = document.createElement("div");
+                    stone.classList.add("stone", "black-stone");
+                    div.appendChild(stone);
+
+                }
+                else
+                {
+                    new_line = true;
+                }
+
+                if(!new_line)
+                {
+                    checker_color = !checker_color;
+
+                    row.appendChild(div)
+                }
+                else
+                {
+                    board.appendChild(row);
+                    row = document.createElement('tr')
+                    line_checker_start = !line_checker_start;
+                    checker_color = line_checker_start;
+
+                }
+            }
+            board.appendChild(row)
+        })
+    </script>
+{% endblock %}
+
+{% block body %}
+<table id="board">
+
+</table>
+<div id="info">
+    <h1>{{ game.first_player }} vs. {{ game.second_player }}</h1>
+    <strong>{{ turn }}'s turn.</strong>
+</div>
+{% endblock %}

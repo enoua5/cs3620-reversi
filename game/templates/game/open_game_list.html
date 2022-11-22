@@ -1,0 +1,41 @@
+{% extends 'base/base.html' %}
+
+{% block title %} Open Games {% endblock %}
+
+{% block head %}
+<style>
+    a.disabled
+    {
+        color: grey;
+        text-decoration: none;
+        pointer-events: none;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+<h1>Open Games</h1>
+
+<a href="{% url 'game:new_open_game' %}" class="btn btn-primary" aria-role="button">New Game</a>
+
+<hr>
+
+<strong>Page {{page}}</strong>
+
+<ul class="list-group">
+    {% for game in games %}
+    <li class="list-group-item">
+        You play as {% if game.first_player_is_X %}Black{% else %}White{% endif %} vs. {{ game.first_player.username }} on {{ game.board_name }}
+    </li>
+    {% endfor %}
+</ul>
+
+
+<a href="1" {% if not games.has_previous %} class="disabled" {% endif %}>First</a>
+<a href="{% if games.has_previous %}{{ games.previous_page_number }}{% endif %}" {% if not games.has_previous %} class="disabled" {% endif %}>Previous</a>
+Page: {{ games.number }} of {{ games.paginator.num_pages }}
+<a href="{% if games.has_next %}{{ games.next_page_number }}{% endif %}" {% if not games.has_next %} class="disabled" {% endif %}>Next</a>
+<a href="{{ games.paginator.num_pages }}" {% if not games.has_next %} class="disabled" {% endif %}>Last</a>
+
+{% endblock %}

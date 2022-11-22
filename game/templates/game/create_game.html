@@ -1,0 +1,43 @@
+{% extends 'base/base.html' %}
+
+{% block title %} New Game {% endblock %}
+
+{% block head %}
+<script>
+    registerLoadFunction(()=>{
+        document.getElementsByName("board")[0].checked = true;
+    });
+</script>
+{% endblock %}
+
+{% block body %}
+<h1>New Game</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    <fieldset class="form-group">
+        <legend>I play as...</legend>
+
+        <input type="radio" name="play_as" value="white" id="play_as_white" checked>
+        <label for="play_as_white">Play as white</label>
+        <br>
+        <input type="radio" name="play_as" value="black" id="play_as_black">
+        <label for="play_as_black">Play as black</label>
+    </fieldset>
+
+    <fieldset class="form-group">
+        <legend>Board</legend>
+
+        {% for board in boards %}
+        <input type="radio" name="board" value="{{board.id}}" id="board-{{board.id}}">
+        <label for="board-{{board.id}}">{{board.name}}</label>
+        <br>
+        {% endfor %}
+
+    </fieldset>
+
+    <hr>
+
+    <button type="submit" class="btn btn-primary">Create game</button>
+</form>
+{% endblock %}
