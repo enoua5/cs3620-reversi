@@ -8,4 +8,5 @@ urlpatterns = [
     path('play/<int:game_id>', views.view_game, name="view_game"),
     path('play/<int:game_id>/<int:row>/<int:col>', views.make_move, name="make_move"),
     path('join/<int:game_id>', views.join_game, name="join_game"),
+    path('my_games', views.my_games, name="my_games"),
 ]
