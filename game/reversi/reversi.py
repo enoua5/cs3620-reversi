@@ -2,28 +2,6 @@ from enum import Enum, auto
 
 # These boards will actually be pulled from the database in the final
 # but for now, I'm leaving these to show the format
-boards = {
-    "standard": """\
-........
-........
-........
-...xo...
-...ox...
-........
-........
-........
-""",
-    "plus": """\
-__....__
-__....__
-........
-...xo...
-...ox...
-........
-__....__
-__....__
-"""
-}
 
 class _Winner(Enum):
     X = auto()
@@ -62,7 +40,7 @@ class Reversi:
                 line.append(_SpaceType.EMPTY)
             elif c == '_':
                 line.append(_SpaceType.VOID)
-            elif c == '\n':
+            elif c.isspace():
                 board.append(line)
 
                 if line_length is None:
@@ -71,6 +49,15 @@ class Reversi:
                     raise IndexError("Uneven line lengths")
 
                 line = []
+
+        if len(line) != 0:
+            board.append(line)
+
+            if line_length is None:
+                line_length = len(line)
+            elif line_length != len(line):
+                raise IndexError("Uneven line lengths")
+
 
         game = Reversi(board)
         game.turn = turn
@@ -88,7 +75,7 @@ class Reversi:
                     ret += "."
                 elif square == _SpaceType.VOID:
                     ret += "_"
-            ret += "\n"
+            ret += " "
         return ret
 
     def _copy_board_state(self, board:list[list[_SpaceType]])->list[list[_SpaceType]]:

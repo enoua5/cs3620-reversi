@@ -26,7 +26,8 @@
 <ul class="list-group">
     {% for game in games %}
     <li class="list-group-item">
-        You play as {% if game.first_player_is_X %}Black{% else %}White{% endif %} vs. {{ game.first_player.username }} on {{ game.board_name }}
+        <span class="float-start">You play as {% if game.first_player_is_X %}Black{% else %}White{% endif %} vs. {{ game.first_player.username }} on {{ game.board_name }}</span>
+        <a href="{% url 'game:join_game' game.id %}" class="btn btn-primary float-end">Join</a>
     </li>
     {% endfor %}
 </ul>

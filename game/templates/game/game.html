@@ -20,6 +20,12 @@
             width: 5em;
             height: 5em;
         }
+        .board-square a
+        {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
         .board-square-white
         {
             background-color: bisque;
@@ -63,11 +69,11 @@
             let board = document.getElementById("board");
 
             let row = document.createElement("tr")
+            let rowc = 0;
+            let colc = 0;
 
             for(let c of board_string)
             {
-                console.log(c)
-
                 let div = document.createElement("td");
                 div.classList.add("board-square");
 
@@ -113,14 +119,28 @@
                     new_line = true;
                 }
 
+
                 if(!new_line)
                 {
                     checker_color = !checker_color;
 
-                    row.appendChild(div)
+                    if(div.childElementCount == 0)
+                    {
+                        let a = document.createElement("a");
+                        a.href = `{{ game.id }}/${rowc}/${colc}`;
+                        div.appendChild(a)
+                    }
+
+                    row.appendChild(div);
+
+
+                    rowc++;
                 }
                 else
                 {
+                    rowc = 0;
+                    colc ++;
+
                     board.appendChild(row);
                     row = document.createElement('tr')
                     line_checker_start = !line_checker_start;
@@ -138,7 +158,24 @@
 
 </table>
 <div id="info">
-    <h1>{{ game.first_player }} vs. {{ game.second_player }}</h1>
-    <strong>{{ turn }}'s turn.</strong>
+    {% if game.second_player is not None %}
+        <h1>{{ game.first_player }} vs. {{ game.second_player }}</h1>
+        {% if not game.game_ended %}
+            <strong>{{ turn }}'s turn.</strong>
+        {% else %}
+            <strong>
+                Game over:
+                {% if game.winner == 'x' %}
+                    White won
+                {% elif game.winner == 'o' %}
+                    Black won
+                {% elif game.winner == 't' %}
+                    It's a draw
+                {% endif %}
+            </strong>
+        {% endif %}
+    {% else %}
+        <strong>Waiting for a second player</strong>
+    {% endif %}
 </div>
 {% endblock %}

@@ -23,4 +23,6 @@ class Game(models.Model):
     game_started = models.BooleanField(default=False)
     game_ended = models.BooleanField(default=False)
 
+    winner = models.CharField(max_length=1, null=True)
+
     most_recent_move = models.DateTimeField(auto_now_add=True)
