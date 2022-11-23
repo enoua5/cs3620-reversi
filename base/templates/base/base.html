@@ -11,13 +11,7 @@
         {% endblock %}
 
         <title>
-            {% block title %}
-
-            {% endblock %}
-            {% if title %}
-            -
-            {% endif %}
-            Reversi Online
+            {% block title %}{% endblock %}{% if title %} - {% endif %} Reversi Online
         </title>
     </head>
     <body onload="_onload_handler()">

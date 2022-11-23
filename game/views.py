@@ -117,3 +117,6 @@ def make_move(req, game_id, row, col):
 
     return redirect('game:view_game', game_id = game_id)
 
+def my_games(req):
+    return render(req, 'game/my_games.html')
+

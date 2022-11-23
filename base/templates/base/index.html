@@ -6,14 +6,21 @@
 <hr>
 <div class="container-fluid">
     <div class="float-start">
-        <h2>Your Games</h2>
-        <ul>
-            <li>list</li>
-        </ul>
-        <hr>
         <h2>New game</h2>
         <a class="btn btn-primary" href="#">Challenge</a>
         <a class="btn btn-primary" href="{% url 'game:open_games' 1 %}">Open game</a>
+        <hr>
+        <h2>Your Games</h2>
+        <ul class="list-group">
+            {% for game_data in latest_games %}
+            <li class="list-group-item">
+                <span class="float-start">
+                    {{ game_data.1 }} vs. {{ game_data.2 }} on {{ game_data.0.board_name }}
+                </span>
+                <a href="{% url 'game:view_game' game_data.0.id %}" class="btn btn-primary float-end" style="margin-left: 10vw">View</a>
+            </li>
+            {% endfor %}
+        </ul>
     </div>
     <div class="float-end">
         <h2>Top Players</h2>
