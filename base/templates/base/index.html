@@ -20,7 +20,7 @@
         <ol>
             {% for player in top_players %}
             <li>
-                {{ player.username }} — {{ player.userdata.elo_rating }}
+                <a href="{% url 'base:profile' player.username %}">{{ player.username }}</a> — {{ player.userdata.elo_rating }}
             </li>
             {% endfor %}
         </ol>

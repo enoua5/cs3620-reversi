@@ -159,7 +159,7 @@
 </table>
 <div id="info">
     {% if game.second_player is not None %}
-        <h1>{{ game.first_player }} vs. {{ game.second_player }}</h1>
+        <h1><a href="{% url 'base:profile' game.first_player %}">{{ game.first_player }}</a> vs. <a href="{% url 'base:profile' game.second_player %}">{{ game.second_player }}</a></h1>
         {% if not game.game_ended %}
             <strong>{{ turn }}'s turn.</strong>
         {% else %}

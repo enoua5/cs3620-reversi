@@ -34,3 +34,12 @@ def index(req):
     }
 
     return render(req, 'base/index.html', ctx)
+
+def profile(req, username):
+    user = User.objects.get(username=username)
+
+    ctx = {
+        'user': user,
+    }
+
+    return render(req, 'base/profile.html', ctx) 

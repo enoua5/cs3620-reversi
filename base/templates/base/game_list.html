@@ -2,7 +2,7 @@
     {% for game_data in games %}
     <li class="list-group-item">
         <span class="float-start">
-            {{ game_data.1 }} vs. {{ game_data.2 }} on {{ game_data.0.board_name }}
+            {{ game_data.1 }} vs. <a href="{% url 'base:profile' game_data.2 %}">{{ game_data.2 }}</a> on {{ game_data.0.board_name }}
         </span>
         <a href="{% url 'game:view_game' game_data.0.id %}" class="btn btn-primary float-end" style="margin-left: 10vw">View</a>
     </li>
