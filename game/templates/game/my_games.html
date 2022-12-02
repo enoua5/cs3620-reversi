@@ -4,6 +4,9 @@
 {% block body %}
 <h1>My games</h1>
 <h2>Your turn</h2>
+{% include 'base/game_list.html' with games=my_turn %}
 <h2>Waiting on opponent</h2>
+{% include 'base/game_list.html' with games=opp_turn %}
 <h2>Finished</h2>
+{% include 'base/game_list.html' with games=finished %}
 {% endblock %}

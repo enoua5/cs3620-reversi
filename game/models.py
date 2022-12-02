@@ -26,3 +26,12 @@ class Game(models.Model):
     winner = models.CharField(max_length=1, null=True)
 
     most_recent_move = models.DateTimeField(auto_now_add=True)
+
+    def is_users_turn(self, user):
+        if self.game_ended or not self.game_started:
+            return False
+        if user == self.first_player:
+            self.first_players_turn
+        elif user == self.second_player:
+            return not self.first_players_turn
+        return False

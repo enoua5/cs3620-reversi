@@ -11,16 +11,7 @@
         <a class="btn btn-primary" href="{% url 'game:open_games' 1 %}">Open game</a>
         <hr>
         <h2>Your Games</h2>
-        <ul class="list-group">
-            {% for game_data in latest_games %}
-            <li class="list-group-item">
-                <span class="float-start">
-                    {{ game_data.1 }} vs. {{ game_data.2 }} on {{ game_data.0.board_name }}
-                </span>
-                <a href="{% url 'game:view_game' game_data.0.id %}" class="btn btn-primary float-end" style="margin-left: 10vw">View</a>
-            </li>
-            {% endfor %}
-        </ul>
+        {% include 'base/game_list.html' with games=latest_games %}
         <br>
         <a href="{% url 'game:my_games' %}" class="btn btn-primary">View all</a>
     </div>

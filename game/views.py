@@ -1,12 +1,27 @@
 from django.shortcuts import render, redirect
 from django.http.response import JsonResponse, HttpResponse
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.contrib import messages
 
 from datetime import datetime
 
 from .models import Game, BoardTemplate
 from .reversi.reversi import Reversi, _Player, _Winner
+
+def get_game_data(game_list, user):
+    role = []
+    opponent = []
+
+    for game in game_list:
+        if user == game.first_player:
+            opponent.append(game.second_player)
+            role.append("White")
+        else:
+            opponent.append(game.first_player)
+            role.append("Black")
+
+    return zip(game_list, role, opponent)
 
 # Create your views here.
 
@@ -118,5 +133,16 @@ def make_move(req, game_id, row, col):
     return redirect('game:view_game', game_id = game_id)
 
 def my_games(req):
-    return render(req, 'game/my_games.html')
+    my_turn = get_game_data(Game.objects.filter(game_started=True, game_ended=False).filter(Q(first_players_turn=True, first_player=req.user) | Q(first_players_turn=False, second_player=req.user)), req.user)
+    opp_turn = get_game_data(Game.objects.filter(game_started=True, game_ended=False).filter(Q(first_players_turn=True, second_player=req.user) | Q(first_players_turn=False, first_player=req.user)), req.user)
+    finshed = get_game_data(Game.objects.filter(game_ended=True), req.user)
+
+
+    ctx = {
+        'my_turn': my_turn,
+        'opp_turn': opp_turn,
+        'finished': finshed,
+    }
+
+    return render(req, 'game/my_games.html', ctx)
 
