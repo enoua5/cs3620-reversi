@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -43,3 +43,19 @@ def profile(req, username):
     }
 
     return render(req, 'base/profile.html', ctx) 
+
+def edit_profile(req):
+    if req.POST:
+        bio = req.POST.get('bio')
+        open_challenge = req.POST.get('open-to-challenge') == 'on'
+
+        req.user.userdata.bio_text = bio
+        req.user.userdata.open_for_challenge = open_challenge
+
+        req.user.save()
+
+        return redirect('base:profile', username=req.user.username)
+
+
+    return render(req, 'base/edit_profile.html')
+

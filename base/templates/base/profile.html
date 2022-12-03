@@ -5,6 +5,18 @@
 {% block body %}
 
 <h1>{{ user.username }}</h1>
+
+{% if request.user == user %}
+
+<a href="{% url 'base:edit_profile' %}" class="btn btn-primary">Edit profile</a>
+<p>Challenges {% if user.userdata.open_for_challenge %}open{% else %}closed{% endif %}</p>
+
+{% elif user.userdata.open_for_challenge %}
+
+<a href="#" class="btn btn-primary">Challenge</a>
+
+{% endif %}
+
 <hr>
 <p>{{ user.userdata.bio_text }}</p>
 
