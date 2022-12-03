@@ -6,5 +6,9 @@
         </span>
         <a href="{% url 'game:view_game' game_data.0.id %}" class="btn btn-primary float-end" style="margin-left: 10vw">View</a>
     </li>
+    {% empty %}
+    <li class="list-group-item">
+        <p>Nothing to see here!</p>
+    </li>
     {% endfor %}
 </ul>
