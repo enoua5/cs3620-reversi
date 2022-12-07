@@ -12,7 +12,7 @@
         {% endblock %}
 
         <title>
-            {% block title %}{% endblock %}{% if title %} - {% endif %} Reversi Online
+            {% block title %}Reversi Online{% endblock %}
         </title>
     </head>
     <body onload="_onload_handler()">
@@ -31,7 +31,7 @@
                         <a class="nav-link" href="{% url 'game:my_games' %}">My games</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'game:new_open_game'%}">New game</a>
+                        <a class="nav-link" href="{% url 'game:open_games' 1 %}">New game</a>
                     </li>
                     {% endif %}
                 </ul>
