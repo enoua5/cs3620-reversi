@@ -35,6 +35,7 @@ def index(req):
 
     return render(req, 'base/index.html', ctx)
 
+@login_required
 def profile(req, username):
     user = User.objects.get(username=username)
 
@@ -44,6 +45,7 @@ def profile(req, username):
 
     return render(req, 'base/profile.html', ctx) 
 
+@login_required
 def edit_profile(req):
     if req.POST:
         bio = req.POST.get('bio')
@@ -58,4 +60,48 @@ def edit_profile(req):
 
 
     return render(req, 'base/edit_profile.html')
+
+def handle_search(req):
+    if req.POST:
+        username = req.POST.get("username")
+        if username == "":
+            username = "*"
+        minelo = int(req.POST.get("minelo"))
+        maxelo = int(req.POST.get("maxelo"))
+
+        return redirect('base:search_users', min_elo=minelo, max_elo=maxelo, username=username)
+    return None
+
+@login_required
+def list_all_users(req):
+
+    search = handle_search(req)
+    if search is not None:
+        return search
+
+    users = User.objects.all().order_by('-userdata__elo_rating')
+
+    ctx = {
+        'users': users
+    }
+
+    return render(req, 'base/user_list.html', ctx)
+
+@login_required
+def list_all_users_search(req, min_elo:int, max_elo:int, username:str):
+
+    search = handle_search(req)
+    if search is not None:
+        return search
+
+    users = User.objects.filter(userdata__elo_rating__gte=min_elo, userdata__elo_rating__lte=max_elo)
+    if username != "*":
+        users = users.filter(username__contains=username)
+    users = users.order_by('-userdata__elo_rating')
+
+    ctx = {
+        'users': users
+    }
+
+    return render(req, 'base/user_list.html', ctx)
 
