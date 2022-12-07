@@ -9,6 +9,26 @@ from datetime import datetime
 from .models import Game, BoardTemplate
 from .reversi.reversi import Reversi, _Player, _Winner
 
+def transfer_elo(playerX, playerO, winner:float):
+    # winner == 0 => player X won
+    # winner == 1 => player O won
+    # winner == 0.5 => tie
+    rX = playerX.userdata.elo_rating
+    rO = playerO.userdata.elo_rating
+    eX = 1 / (1 + (10 ** ( (rO-rX)/400 )))
+    eO = 1 / (1 + (10 ** ( (rX-rO)/400 )))
+
+    print("score:",winner)
+    print("expected:",eO)
+
+    print("X gets:", 16 * ((1-winner) - eX))
+    print("O gets:", 16 * (winner - eO))
+
+    playerX.userdata.elo_rating += 16 * ((1-winner) - eX)
+    playerO.userdata.elo_rating += 16 * (winner - eO)
+    playerX.save()
+    playerO.save()
+
 def get_game_data(game_list, user):
     role = []
     opponent = []
@@ -97,36 +117,47 @@ def join_game(req, game_id):
 def make_move(req, game_id, row, col):
     game = Game.objects.get(id=game_id)
 
-    player_to_move = game.first_player if game.first_players_turn else game.second_player
+    if not game.game_ended:
 
-    if req.user == player_to_move:
-        turn = _Player.O if game.first_player_is_X ^ game.first_players_turn else _Player.X
-        
-        reversi = Reversi.from_board_string(game.board_string, turn)
+        player_to_move = game.first_player if game.first_players_turn else game.second_player
 
-        try:
-            reversi.play_move(row, col)
+        if req.user == player_to_move:
+            turn = _Player.O if game.first_player_is_X ^ game.first_players_turn else _Player.X
+            
+            reversi = Reversi.from_board_string(game.board_string, turn)
 
-            game.first_players_turn = (reversi.turn == _Player.O) ^ game.first_player_is_X
-            game.most_recent_move = datetime.now()
-            game.board_string = str(reversi)
+            try:
+                reversi.play_move(row, col)
 
-            winner = reversi.get_winner()
-            ongoing = winner == _Winner.ONGOING
-            if not ongoing:
-                game.game_ended = True
+                game.first_players_turn = (reversi.turn == _Player.O) ^ game.first_player_is_X
+                game.most_recent_move = datetime.now()
+                game.board_string = str(reversi)
 
-            if winner == _Winner.O:
-                game.winner = 'o'
-            elif winner == _Winner.X:
-                game.winner = 'x'
-            elif winner == _Winner.TIE:
-                game.winner = 't'
+                winner = reversi.get_winner()
+                ongoing = winner == _Winner.ONGOING
+                if not ongoing:
+                    game.game_ended = True
 
-            game.save()
+                game_score = 0.5
+                if winner == _Winner.O:
+                    game_score = 1
+                    game.winner = 'o'
+                elif winner == _Winner.X:
+                    game_score = 0
+                    game.winner = 'x'
+                elif winner == _Winner.TIE:
+                    game_score = 0.5
+                    game.winner = 't'
 
-        except ValueError:
-            print("ERROR!")
+                game.save()
+
+                if game.first_player_is_X:
+                    transfer_elo(game.first_player, game.second_player, game_score)
+                else:
+                    transfer_elo(game.second_player, game.first_player, game_score)
+
+            except ValueError:
+                print("ERROR!")
 
         
 
