@@ -161,18 +161,29 @@
     {% if game.second_player is not None %}
         <h1><a href="{% url 'base:profile' game.first_player %}">{{ game.first_player }}</a> vs. <a href="{% url 'base:profile' game.second_player %}">{{ game.second_player }}</a></h1>
         {% if not game.game_ended %}
-            <strong>{{ turn }}'s turn.</strong>
+            <strong>
+                {{ turn }}'s turn
+                {% if game.first_players_turn %}
+                ({{ first_player_color }})
+                {% else %}
+                ({{ second_player_color }})
+                {% endif %}
+            </strong>
         {% else %}
             <strong>
                 Game over:
                 {% if game.winner == 'x' %}
-                    White won
+                    {{ white_player }} (White) won
                 {% elif game.winner == 'o' %}
-                    Black won
+                    {{ black_player }} (Black) won
                 {% elif game.winner == 't' %}
                     It's a draw
                 {% endif %}
             </strong>
+            <br>
+            <i>
+                {{ game.elo_transferred }} ELO transferred.
+            </i>
         {% endif %}
     {% else %}
         <strong>Waiting for a second player</strong>

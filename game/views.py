@@ -3,13 +3,14 @@ from django.http.response import JsonResponse, HttpResponse
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 from datetime import datetime
 
 from .models import Game, BoardTemplate
 from .reversi.reversi import Reversi, _Player, _Winner
 
-def transfer_elo(playerX, playerO, winner:float):
+def transfer_elo(playerX, playerO, winner:float, k=16):
     # winner == 0 => player X won
     # winner == 1 => player O won
     # winner == 0.5 => tie
@@ -21,13 +22,17 @@ def transfer_elo(playerX, playerO, winner:float):
     print("score:",winner)
     print("expected:",eO)
 
-    print("X gets:", 16 * ((1-winner) - eX))
-    print("O gets:", 16 * (winner - eO))
+    print("X gets:", k * ((1-winner) - eX))
+    print("O gets:", k * (winner - eO))
 
-    playerX.userdata.elo_rating += 16 * ((1-winner) - eX)
-    playerO.userdata.elo_rating += 16 * (winner - eO)
+    playerX.userdata.elo_rating += k * ((1-winner) - eX)
+    playerO.userdata.elo_rating += k * (winner - eO)
     playerX.save()
     playerO.save()
+
+    elo_transferred = abs(k * (winner - eO))
+
+    return elo_transferred
 
 def get_game_data(game_list, user):
     role = []
@@ -45,6 +50,7 @@ def get_game_data(game_list, user):
 
 # Create your views here.
 
+@login_required
 def open_games_list(req, page):
     games = Game.objects.filter(open_game = True, game_started = False).exclude(first_player = req.user)
 
@@ -58,6 +64,7 @@ def open_games_list(req, page):
 
     return render(req, 'game/open_game_list.html', ctx)
 
+@login_required
 def new_game(req):
 
     if req.method == 'POST':
@@ -88,17 +95,47 @@ def new_game(req):
 
     return render(req, 'game/create_game.html', ctx)
 
+@login_required
+def challenge_user(req, username:str):
+    if req.method == 'POST':
+        player_is_X = req.POST.get("play_as") == "white"
+        player_goes_first = player_is_X
+        board_id = req.POST.get('board')
+        board = BoardTemplate.objects.get(id=board_id)
+
+        # TODO create a challenge object
+        # TODO redirect to a challenges menu
+
+    boards = BoardTemplate.objects.all()
+
+    ctx = {
+        'boards': boards
+    }
+
+    return render(req, 'game/create_game.html', ctx)
+
+
+@login_required
 def view_game(req, game_id):
     game = Game.objects.get(id=game_id)
     turn = game.first_player if game.first_players_turn else game.second_player
+    first_player_color = "White" if game.first_player_is_X else "Black"
+    second_player_color = "Black" if game.first_player_is_X else "White"
+    white_player = game.first_player if game.first_player_is_X else game.second_player
+    black_player = game.second_player if game.first_player_is_X else game.first_player
 
     ctx = {
         'game': game,
-        'turn': turn
+        'turn': turn,
+        'first_player_color': first_player_color,
+        'second_player_color': second_player_color,
+        'white_player': white_player,
+        'black_player': black_player,
     }
 
     return render(req, 'game/game.html', ctx)
 
+@login_required
 def join_game(req, game_id):
     game = Game.objects.get(id=game_id)
 
@@ -113,7 +150,9 @@ def join_game(req, game_id):
     game.save()
 
     return redirect('game:view_game', game_id = game.id)
-        
+
+
+@login_required        
 def make_move(req, game_id, row, col):
     game = Game.objects.get(id=game_id)
 
@@ -149,12 +188,15 @@ def make_move(req, game_id, row, col):
                     game_score = 0.5
                     game.winner = 't'
 
-                game.save()
 
-                if game.first_player_is_X:
-                    transfer_elo(game.first_player, game.second_player, game_score)
-                else:
-                    transfer_elo(game.second_player, game.first_player, game_score)
+                if not ongoing:
+                    if game.first_player_is_X:
+                        elo_transferred = transfer_elo(game.first_player, game.second_player, game_score)
+                    else:
+                        elo_transferred = transfer_elo(game.second_player, game.first_player, game_score)
+                    game.elo_transferred = elo_transferred
+
+                game.save()
 
             except ValueError:
                 print("ERROR!")
@@ -163,10 +205,12 @@ def make_move(req, game_id, row, col):
 
     return redirect('game:view_game', game_id = game_id)
 
+
+@login_required
 def my_games(req):
-    my_turn = get_game_data(Game.objects.filter(game_started=True, game_ended=False).filter(Q(first_players_turn=True, first_player=req.user) | Q(first_players_turn=False, second_player=req.user)), req.user)
-    opp_turn = get_game_data(Game.objects.filter(game_started=True, game_ended=False).filter(Q(first_players_turn=True, second_player=req.user) | Q(first_players_turn=False, first_player=req.user)), req.user)
-    finshed = get_game_data(Game.objects.filter(game_ended=True), req.user)
+    my_turn = get_game_data(Game.objects.filter(game_started=True, game_ended=False).filter(Q(first_players_turn=True, first_player=req.user) | Q(first_players_turn=False, second_player=req.user)).order_by('-most_recent_move'), req.user)
+    opp_turn = get_game_data(Game.objects.filter(game_started=True, game_ended=False).filter(Q(first_players_turn=True, second_player=req.user) | Q(first_players_turn=False, first_player=req.user)).order_by('-most_recent_move'), req.user)
+    finshed = get_game_data(Game.objects.filter(game_ended=True).order_by('-most_recent_move'), req.user)
 
 
     ctx = {

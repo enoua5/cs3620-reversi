@@ -13,7 +13,7 @@
 
 {% elif user.userdata.open_for_challenge %}
 
-<a href="#" class="btn btn-primary">Challenge</a>
+<a href="{% url 'game:challenge_user' user.username %}" class="btn btn-primary">Challenge</a>
 
 {% endif %}
 
