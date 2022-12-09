@@ -5,6 +5,7 @@
 {% block body %}
 
 <h1>{{ user.username }}</h1>
+<p>{{ user.userdata.elo_rating }} ELO</p>
 
 {% if request.user == user %}
 

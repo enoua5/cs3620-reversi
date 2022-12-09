@@ -1,0 +1,44 @@
+{% extends 'base/base.html' %}
+{% block title %}Challenges{% endblock %}
+{% block body %}
+<h1>Challenges</h1>
+<div class="float-start" style="width:40%">
+    <h2>Incoming challenges</h2>
+    <ul class="list-group">
+        {% for challenge in incoming %}
+        <li class="list-group-item">
+            <div class="float-start">
+                {% if challenge.challenger_is_X %}Black{% else %}White{% endif %}
+                vs {{ challenge.challenger }}
+                on {{ challenge.board_id }}
+            </div>
+            <div class="float-end">
+                <a class="btn btn-danger" href="{% url 'base:delete_challenge' challenge.id %}">Decline</a>
+                <a class="btn btn-success" href="{% url 'base:accept_challenge' challenge.id %}">Accept</a>
+            </div>
+        </li>
+        {% empty %}
+        <li class="list-group-item">Nothing to see here</li>
+        {% endfor %}
+    </ul>
+</div>
+<div class="float-end" style="width:40%">
+    <h2>Sent challenges</h2>
+    <ul class="list-group">
+        {% for challenge in sent %}
+        <li class="list-group-item">
+            <div class="float-start">
+                {% if challenge.challenger_is_X %}White{% else %}Black{% endif %}
+                vs {{ challenge.challenged }}
+                on {{ challenge.board_id }}
+            </div>
+            <div class="float-end">
+                <a class="btn btn-secondary" href="{% url 'base:delete_challenge' challenge.id %}">Cancel</a>
+            </div>
+        </li>
+        {% empty %}
+        <li class="list-group-item">Nothing to see here</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

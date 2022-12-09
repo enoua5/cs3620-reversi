@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http.response import JsonResponse, HttpResponse
+from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
@@ -7,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 from datetime import datetime
 
-from .models import Game, BoardTemplate
+from .models import Game, BoardTemplate, Challenge
 from .reversi.reversi import Reversi, _Player, _Winner
 
 def transfer_elo(playerX, playerO, winner:float, k=16):
@@ -97,14 +98,28 @@ def new_game(req):
 
 @login_required
 def challenge_user(req, username:str):
-    if req.method == 'POST':
-        player_is_X = req.POST.get("play_as") == "white"
-        player_goes_first = player_is_X
-        board_id = req.POST.get('board')
-        board = BoardTemplate.objects.get(id=board_id)
+    
+    challenged = User.objects.get(username=username)
 
-        # TODO create a challenge object
-        # TODO redirect to a challenges menu
+    if not challenged.userdata.open_for_challenge:
+        messages.warning(req, "Sorry, that user isn't open for challenges")
+    elif req.method == 'POST':
+        if req.user.challenges_sent.filter(challenged=challenged).exists():
+            messages.warning(req, "Sorry, you've already sent a request to that user. Please either await their response, or delete it and try again.")
+        else:
+            player_is_X = req.POST.get("play_as") == "white"
+            board_id = req.POST.get('board')
+            board = BoardTemplate.objects.get(id=board_id)
+
+            Challenge(
+                challenger = req.user,
+                challenged = challenged,
+                board_id = board,
+                challenger_is_X = player_is_X
+            ).save()
+
+            return redirect('base:challenges')
+
 
     boards = BoardTemplate.objects.all()
 

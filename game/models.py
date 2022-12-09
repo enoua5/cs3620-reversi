@@ -8,6 +8,19 @@ class BoardTemplate(models.Model):
     # max_length here allows for a 32x32 board
     board_string = models.CharField(max_length=1056)
 
+    def __str__(self):
+        return self.name
+
+class Challenge(models.Model):
+    challenger = models.ForeignKey(User, on_delete=models.CASCADE, related_name='challenges_sent')
+    challenged = models.ForeignKey(User, on_delete=models.CASCADE, related_name='challenges')
+
+    challenger_is_X = models.BooleanField(default=True)
+    board_id = models.ForeignKey(BoardTemplate, on_delete=models.CASCADE)
+
+    send_time = models.DateTimeField(auto_now_add=True)
+
+
 class Game(models.Model):
     first_player = models.ForeignKey(User, on_delete=models.CASCADE, related_name='first_player_in')
     # second is nullable so that an open game can be made
